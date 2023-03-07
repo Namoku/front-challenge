@@ -35,3 +35,11 @@ button[disabled] {
   background-color: #efefef;
   color: #585858;
 }
+
+.draggable {
+  cursor: grab;
+}
+
+.draggable:active {
+  cursor: grabbing;
+}
