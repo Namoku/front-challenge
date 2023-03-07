@@ -146,6 +146,28 @@ const Component = ({
     });
   };
 
+  const onDrag = async (e) => {
+    const { target, beforeTranslate } = e;
+    // get the dimensions of the target element
+    const targetRect = target.getBoundingClientRect();
+
+    // get the max width where can be translated and put it as x position
+    const maxX = parentBounds.width - targetRect.width;
+    // get the max height where can be translated and put it as y position
+    const maxY = parentBounds.height - targetRect.height;
+    const minX = 0;
+    const minY = 0;
+
+    // apply the boundaries to the translation, meaning we have the minimun value between the max size we made before
+    // and the new position it will have, with this we are always making to have them in the boundaries of the parent
+    // even if they change any time
+    const x = Math.max(minX, Math.min(beforeTranslate[0], maxX));
+    const y = Math.max(minY, Math.min(beforeTranslate[1], maxY));
+
+    // apply the translated position to the target element
+    target.style.transform = `translate(${x}px, ${y}px)`;
+  };
+
   return (
     <>
       <div
@@ -167,15 +189,7 @@ const Component = ({
         target={isSelected && ref.current}
         resizable
         draggable
-        onDrag={(e) => {
-          updateMoveable(id, {
-            top: e.top,
-            left: e.left,
-            width,
-            height,
-            color,
-          });
-        }}
+        onDrag={onDrag}
         onResize={onResize}
         keepRatio={false}
         throttleResize={1}
