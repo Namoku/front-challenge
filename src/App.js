@@ -1,24 +1,36 @@
-import React, { useRef, useState, useEffect } from "react";
-import Moveable from "react-moveable";
+import React, { useState, useEffect, useRef } from "react";
+import Component from "./Component";
 
 const App = () => {
   const [moveableComponents, setMoveableComponents] = useState([]);
   const [selected, setSelected] = useState(null);
-  const parent = useRef(null);
+  const [data, setData] = useState([]);
+  const countClick = useRef(0);
+
+  useEffect(() => {
+    const url = "https://jsonplaceholder.typicode.com/photos";
+    fetch(url)
+      .then((response) => response.json())
+      .then((dataJson) => setData(dataJson));
+  }, []);
 
   const addMoveable = () => {
+    const SIZES = ["contain", "cover", "auto"];
+    const image = {
+      url: data[countClick.current].url,
+      size: SIZES[Math.floor(Math.random() * SIZES.length)],
+    };
     // Create a new moveable component and add it to the array
-    const COLORS = ["red", "blue", "yellow", "green", "purple"];
-
+    countClick.current = countClick.current + 1;
     setMoveableComponents([
       ...moveableComponents,
       {
-        id: Math.floor(Math.random() * Date.now()),
+        id: data[countClick.current].id,
         top: 0,
         left: 0,
         width: 100,
         height: 100,
-        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        image,
         updateEnd: true,
       },
     ]);
@@ -66,7 +78,6 @@ const App = () => {
           height: "80vh",
           width: "80vw",
         }}
-        ref={parent}
       >
         {moveableComponents.map((item, index) => (
           <Component
@@ -84,121 +95,3 @@ const App = () => {
 };
 
 export default App;
-
-const Component = ({
-  updateMoveable,
-  top,
-  left,
-  width,
-  height,
-  index,
-  color,
-  id,
-  setSelected,
-  isSelected = false,
-  updateEnd,
-}) => {
-  const ref = useRef();
-
-  const [nodoReferencia, setNodoReferencia] = useState({
-    top,
-    left,
-    width,
-    height,
-    index,
-    color,
-    id,
-  });
-
-  let parent = document.getElementById("parent");
-  let parentBounds = parent?.getBoundingClientRect();
-
-  const onResize = async (e) => {
-    // ACTUALIZAR ALTO Y ANCHO
-    let newWidth = e.width;
-    let newHeight = e.height;
-
-    updateMoveable(id, {
-      top,
-      left,
-      width: newWidth,
-      height: newHeight,
-      color,
-    });
-
-    // ACTUALIZAR NODO REFERENCIA
-    const beforeTranslate = e.drag.beforeTranslate;
-
-    ref.current.style.width = `${e.width}px`;
-    ref.current.style.height = `${e.height}px`;
-
-    let translateX = beforeTranslate[0];
-    let translateY = beforeTranslate[1];
-
-    ref.current.style.transform = `translate(${translateX}px, ${translateY}px)`;
-
-    setNodoReferencia({
-      ...nodoReferencia,
-      translateX,
-      translateY,
-      top: top + translateY < 0 ? 0 : top + translateY,
-      left: left + translateX < 0 ? 0 : left + translateX,
-    });
-  };
-
-  const onDrag = async (e) => {
-    const { target, beforeTranslate } = e;
-    // get the dimensions of the target element
-    const targetRect = target.getBoundingClientRect();
-
-    // get the max width where can be translated and put it as x position
-    const maxX = parentBounds.width - targetRect.width;
-    // get the max height where can be translated and put it as y position
-    const maxY = parentBounds.height - targetRect.height;
-    const minX = 0;
-    const minY = 0;
-
-    // apply the boundaries to the translation, meaning we have the minimun value between the max size we made before
-    // and the new position it will have, with this we are always making to have them in the boundaries of the parent
-    // even if they change any time
-    const x = Math.max(minX, Math.min(beforeTranslate[0], maxX));
-    const y = Math.max(minY, Math.min(beforeTranslate[1], maxY));
-
-    // apply the translated position to the target element
-    target.style.transform = `translate(${x}px, ${y}px)`;
-  };
-
-  return (
-    <>
-      <div
-        ref={ref}
-        className="draggable"
-        id={"component-" + id}
-        style={{
-          position: "absolute",
-          top: top,
-          left: left,
-          width: width,
-          height: height,
-          background: color,
-        }}
-        onClick={() => setSelected(id)}
-      />
-
-      <Moveable
-        target={isSelected && ref.current}
-        resizable
-        draggable
-        onDrag={onDrag}
-        onResize={onResize}
-        keepRatio={false}
-        throttleResize={1}
-        renderDirections={["nw", "n", "ne", "w", "e", "sw", "s", "se"]}
-        edge={false}
-        zoom={1}
-        origin={false}
-        padding={{ left: 0, top: 0, right: 0, bottom: 0 }}
-      />
-    </>
-  );
-};
