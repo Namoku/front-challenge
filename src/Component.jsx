@@ -42,11 +42,9 @@ const Component = ({
     const translateY = Math.max(0, newTranslateY);
 
     console.log({
-      translateX,
-      translateY,
+      parentBounds,
       w: e.width,
       h: e.height,
-      aaa: e.target.getBoundingClientRect(),
     });
     ref.current.style.transform = `translate(${translateX}px, ${translateY}px)`;
 
