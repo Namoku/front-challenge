@@ -21,7 +21,6 @@ const App = () => {
       size: SIZES[Math.floor(Math.random() * SIZES.length)],
     };
     // Create a new moveable component and add it to the array
-    countClick.current = countClick.current + 1;
     setMoveableComponents([
       ...moveableComponents,
       {
@@ -34,6 +33,15 @@ const App = () => {
         updateEnd: true,
       },
     ]);
+    countClick.current = countClick.current + 1;
+  };
+
+  const removeMoveable = () => {
+    const newElements = moveableComponents.filter(
+      (component) => component.id !== selected
+    );
+    setMoveableComponents(newElements);
+    setSelected(null);
   };
 
   const updateMoveable = (id, newComponent, updateEnd = false) => {
@@ -70,6 +78,9 @@ const App = () => {
   return (
     <main style={{ height: "100vh", width: "100vw" }}>
       <button onClick={addMoveable}>Add Moveable1</button>
+      <button onClick={removeMoveable} disabled={!selected}>
+        Delete Moveable {selected}
+      </button>
       <div
         id="parent"
         style={{
