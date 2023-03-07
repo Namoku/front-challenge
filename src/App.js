@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Component from "./Component";
+import "./styles.css";
 
 const App = () => {
   const [moveableComponents, setMoveableComponents] = useState([]);
@@ -77,10 +78,12 @@ const App = () => {
 
   return (
     <main style={{ height: "100vh", width: "100vw" }}>
-      <button onClick={addMoveable}>Add Moveable1</button>
-      <button onClick={removeMoveable} disabled={!selected}>
-        Delete Moveable {selected}
-      </button>
+      <section>
+        <button onClick={addMoveable}>Add Moveable1</button>
+        <button onClick={removeMoveable} disabled={!selected}>
+          Delete Moveable {selected}
+        </button>
+      </section>
       <div
         id="parent"
         style={{
