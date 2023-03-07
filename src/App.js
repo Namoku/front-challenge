@@ -4,6 +4,7 @@ import Moveable from "react-moveable";
 const App = () => {
   const [moveableComponents, setMoveableComponents] = useState([]);
   const [selected, setSelected] = useState(null);
+  const parent = useRef(null);
 
   const addMoveable = () => {
     // Create a new moveable component and add it to the array
@@ -18,7 +19,7 @@ const App = () => {
         width: 100,
         height: 100,
         color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        updateEnd: true
+        updateEnd: true,
       },
     ]);
   };
@@ -55,7 +56,7 @@ const App = () => {
   };
 
   return (
-    <main style={{ height : "100vh", width: "100vw" }}>
+    <main style={{ height: "100vh", width: "100vw" }}>
       <button onClick={addMoveable}>Add Moveable1</button>
       <div
         id="parent"
@@ -65,6 +66,7 @@ const App = () => {
           height: "80vh",
           width: "80vw",
         }}
+        ref={parent}
       >
         {moveableComponents.map((item, index) => (
           <Component
@@ -110,19 +112,11 @@ const Component = ({
 
   let parent = document.getElementById("parent");
   let parentBounds = parent?.getBoundingClientRect();
-  
+
   const onResize = async (e) => {
     // ACTUALIZAR ALTO Y ANCHO
     let newWidth = e.width;
     let newHeight = e.height;
-
-    const positionMaxTop = top + newHeight;
-    const positionMaxLeft = left + newWidth;
-
-    if (positionMaxTop > parentBounds?.height)
-      newHeight = parentBounds?.height - top;
-    if (positionMaxLeft > parentBounds?.width)
-      newWidth = parentBounds?.width - left;
 
     updateMoveable(id, {
       top,
@@ -150,38 +144,6 @@ const Component = ({
       top: top + translateY < 0 ? 0 : top + translateY,
       left: left + translateX < 0 ? 0 : left + translateX,
     });
-  };
-
-  const onResizeEnd = async (e) => {
-    let newWidth = e.lastEvent?.width;
-    let newHeight = e.lastEvent?.height;
-
-    const positionMaxTop = top + newHeight;
-    const positionMaxLeft = left + newWidth;
-
-    if (positionMaxTop > parentBounds?.height)
-      newHeight = parentBounds?.height - top;
-    if (positionMaxLeft > parentBounds?.width)
-      newWidth = parentBounds?.width - left;
-
-    const { lastEvent } = e;
-    const { drag } = lastEvent;
-    const { beforeTranslate } = drag;
-
-    const absoluteTop = top + beforeTranslate[1];
-    const absoluteLeft = left + beforeTranslate[0];
-
-    updateMoveable(
-      id,
-      {
-        top: absoluteTop,
-        left: absoluteLeft,
-        width: newWidth,
-        height: newHeight,
-        color,
-      },
-      true
-    );
   };
 
   return (
@@ -215,7 +177,6 @@ const Component = ({
           });
         }}
         onResize={onResize}
-        onResizeEnd={onResizeEnd}
         keepRatio={false}
         throttleResize={1}
         renderDirections={["nw", "n", "ne", "w", "e", "sw", "s", "se"]}
