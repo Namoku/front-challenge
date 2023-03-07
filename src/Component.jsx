@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import Moveable from "react-moveable";
 
 const Component = ({
@@ -16,16 +16,6 @@ const Component = ({
 }) => {
   const ref = useRef();
 
-  const [nodoReferencia, setNodoReferencia] = useState({
-    top,
-    left,
-    width,
-    height,
-    index,
-    image,
-    id,
-  });
-
   let parent = document.getElementById("parent");
   let parentBounds = parent?.getBoundingClientRect();
 
@@ -34,30 +24,29 @@ const Component = ({
     const targetRect = e.target.getBoundingClientRect();
     const newTranslateX = beforeTranslate[0];
     const newTranslateY = beforeTranslate[1];
-
-    const newWidth = newTranslateX < 0 ? targetRect.width : e.width;
-    const newHeight = newTranslateY < 0 ? targetRect.height : e.height;
-
     const translateX = Math.max(0, newTranslateX);
     const translateY = Math.max(0, newTranslateY);
+    const validateX = translateX + e.width < parentBounds.width;
+    const validateY = translateY + e.height < parentBounds.height;
+    const previousWidth = validateX ? e.width : parentBounds.width - translateX;
+    const previousHeight = validateY
+      ? e.height
+      : parentBounds.height - translateY;
+
+    const newWidth =
+      newTranslateX < 0 && validateX ? targetRect.width : previousWidth;
+    const newHeight =
+      newTranslateY < 0 && validateY ? targetRect.height : previousHeight;
 
     console.log({
-      parentBounds,
-      w: e.width,
-      h: e.height,
+      validateX,
+      validateY,
+      aaa: targetRect,
     });
     ref.current.style.transform = `translate(${translateX}px, ${translateY}px)`;
 
     ref.current.style.width = `${newWidth}px`;
     ref.current.style.height = `${newHeight}px`;
-
-    // setNodoReferencia({
-    //   ...nodoReferencia,
-    //   translateX,
-    //   translateY,
-    //   top: top + translateY < 0 ? 0 : top + translateY,
-    //   left: left + translateX < 0 ? 0 : left + translateX,
-    // });
   };
 
   const onDrag = async (e) => {
