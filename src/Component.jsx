@@ -30,36 +30,36 @@ const Component = ({
   let parentBounds = parent?.getBoundingClientRect();
 
   const onResize = async (e) => {
-    // ACTUALIZAR ALTO Y ANCHO
-    let newWidth = e.width;
-    let newHeight = e.height;
-
-    updateMoveable(id, {
-      top,
-      left,
-      width: newWidth,
-      height: newHeight,
-      image,
-    });
-
-    // ACTUALIZAR NODO REFERENCIA
     const beforeTranslate = e.drag.beforeTranslate;
+    const targetRect = e.target.getBoundingClientRect();
+    const newTranslateX = beforeTranslate[0];
+    const newTranslateY = beforeTranslate[1];
 
-    ref.current.style.width = `${e.width}px`;
-    ref.current.style.height = `${e.height}px`;
+    const newWidth = newTranslateX < 0 ? targetRect.width : e.width;
+    const newHeight = newTranslateY < 0 ? targetRect.height : e.height;
 
-    let translateX = beforeTranslate[0];
-    let translateY = beforeTranslate[1];
+    const translateX = Math.max(0, newTranslateX);
+    const translateY = Math.max(0, newTranslateY);
 
-    ref.current.style.transform = `translate(${translateX}px, ${translateY}px)`;
-
-    setNodoReferencia({
-      ...nodoReferencia,
+    console.log({
       translateX,
       translateY,
-      top: top + translateY < 0 ? 0 : top + translateY,
-      left: left + translateX < 0 ? 0 : left + translateX,
+      w: e.width,
+      h: e.height,
+      aaa: e.target.getBoundingClientRect(),
     });
+    ref.current.style.transform = `translate(${translateX}px, ${translateY}px)`;
+
+    ref.current.style.width = `${newWidth}px`;
+    ref.current.style.height = `${newHeight}px`;
+
+    // setNodoReferencia({
+    //   ...nodoReferencia,
+    //   translateX,
+    //   translateY,
+    //   top: top + translateY < 0 ? 0 : top + translateY,
+    //   left: left + translateX < 0 ? 0 : left + translateX,
+    // });
   };
 
   const onDrag = async (e) => {
@@ -109,7 +109,6 @@ const Component = ({
         onDrag={onDrag}
         onResize={onResize}
         keepRatio={false}
-        throttleResize={1}
         renderDirections={["nw", "n", "ne", "w", "e", "sw", "s", "se"]}
         edge={false}
         zoom={1}
