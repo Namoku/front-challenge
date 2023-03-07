@@ -90,10 +90,10 @@ const App = () => {
           width: "80vw",
         }}
       >
-        {moveableComponents.map((item, index) => (
+        {moveableComponents.map((item) => (
           <Component
             {...item}
-            key={index}
+            key={item.id}
             updateMoveable={updateMoveable}
             handleResizeStart={handleResizeStart}
             setSelected={setSelected}
