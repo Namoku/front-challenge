@@ -2,17 +2,14 @@ import { useRef } from "react";
 import Moveable from "react-moveable";
 
 const Component = ({
-  updateMoveable,
   top,
   left,
   width,
   height,
-  index,
   image,
   id,
   setSelected,
   isSelected = false,
-  updateEnd,
 }) => {
   const ref = useRef();
 
@@ -20,31 +17,36 @@ const Component = ({
   let parentBounds = parent?.getBoundingClientRect();
 
   const onResize = async (e) => {
+    // get all positions and sizes previous the resize behavior
     const beforeTranslate = e.drag.beforeTranslate;
     const targetRect = e.target.getBoundingClientRect();
     const newTranslateX = beforeTranslate[0];
     const newTranslateY = beforeTranslate[1];
+
+    // get max position to translate when we resize from the right to left
     const translateX = Math.max(0, newTranslateX);
     const translateY = Math.max(0, newTranslateY);
+
+    // validate if x and y are inside the parent bounds
     const validateX = translateX + e.width < parentBounds.width;
     const validateY = translateY + e.height < parentBounds.height;
+
+    // get the previous size if we are resizing from backwards or forwards
     const previousWidth = validateX ? e.width : parentBounds.width - translateX;
     const previousHeight = validateY
       ? e.height
       : parentBounds.height - translateY;
 
+    // set the new sizes from the previous validations and set the max size possible
     const newWidth =
       newTranslateX < 0 && validateX ? targetRect.width : previousWidth;
     const newHeight =
       newTranslateY < 0 && validateY ? targetRect.height : previousHeight;
 
-    console.log({
-      validateX,
-      validateY,
-      aaa: targetRect,
-    });
+    // change the position of the component if needed (in previous validations we have minimun as 0 so it never gets out)
     ref.current.style.transform = `translate(${translateX}px, ${translateY}px)`;
 
+    // set the new sizes obtained from the previous validations
     ref.current.style.width = `${newWidth}px`;
     ref.current.style.height = `${newHeight}px`;
   };

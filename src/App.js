@@ -58,7 +58,9 @@ const App = () => {
   return (
     <main style={{ height: "100vh", width: "100vw" }}>
       <section>
-        <button onClick={addMoveable}>Add Moveable1</button>
+        <button onClick={addMoveable} disabled={!data.length}>
+          Add Moveable1
+        </button>
         <button onClick={removeMoveable} disabled={!selected}>
           Delete Moveable {selected}
         </button>
